@@ -1,0 +1,559 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Laboratorio de Funciones</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: banco de trabajo tipo IDE — cabecera con progreso, pestañas por modo, ejercicio a la izquierda y guía rápida fija a la derecha */
+:root{
+  --bg:#eef2f4; --surface:#ffffff; --ink:#16212b; --muted:#5b6874; --line:#d4dce2;
+  --accent:#0d6b67; --accent-soft:#d8eeec; --accent-ink:#ffffff;
+  --warm:#b8680f; --warm-soft:#fbecd8;
+  --ok:#1d7a3b; --ok-soft:#dcf1e2; --bad:#b0281f; --bad-soft:#f9e0dd;
+  --code-bg:#fbfcfd; --code-gutter:#8a96a1;
+  --syn-kw:#7f0055; --syn-type:#7f0055; --syn-str:#2a00ff; --syn-num:#125ea8; --syn-com:#3f7f5f; --syn-fn:#0d6b67;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10171d; --surface:#172129; --ink:#e4ebf0; --muted:#97a5b1; --line:#2b3843;
+  --accent:#4fc2b9; --accent-soft:#183a3a; --accent-ink:#0b1a1a;
+  --warm:#f0a94a; --warm-soft:#3a2b17;
+  --ok:#6fd38f; --ok-soft:#173523; --bad:#ff8a80; --bad-soft:#3d1c1a;
+  --code-bg:#0f161c; --code-gutter:#5d6b77;
+  --syn-kw:#e48bbd; --syn-type:#e48bbd; --syn-str:#a9bcff; --syn-num:#7cc0ff; --syn-com:#7fae8f; --syn-fn:#4fc2b9;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#10171d; --surface:#172129; --ink:#e4ebf0; --muted:#97a5b1; --line:#2b3843;
+  --accent:#4fc2b9; --accent-soft:#183a3a; --accent-ink:#0b1a1a;
+  --warm:#f0a94a; --warm-soft:#3a2b17;
+  --ok:#6fd38f; --ok-soft:#173523; --bad:#ff8a80; --bad-soft:#3d1c1a;
+  --code-bg:#0f161c; --code-gutter:#5d6b77;
+  --syn-kw:#e48bbd; --syn-type:#e48bbd; --syn-str:#a9bcff; --syn-num:#7cc0ff; --syn-com:#7fae8f; --syn-fn:#4fc2b9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,4.4vw,42px);line-height:1.05;margin:0;text-wrap:balance}
+h1 code{font-family:var(--f-mono);font-weight:600;color:var(--accent);font-size:.62em;vertical-align:.25em;margin-left:.15em}
+.total{font-family:var(--f-mono);font-size:14px;color:var(--muted);display:flex;align-items:center;gap:10px}
+.bar{width:160px;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{font:inherit;font-weight:700;font-size:15px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:8px 14px;border-radius:99px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.tab .n{font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tab[aria-selected="true"] .n{color:var(--accent-ink);opacity:.85}
+.tab:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.ex-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.ex-num{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:0;text-wrap:balance}
+.consigna{color:var(--muted);margin:4px 0 14px;max-width:65ch}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{width:26px;height:26px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);
+  font:600 12px var(--f-mono);cursor:pointer;display:grid;place-items:center;padding:0}
+.dot.cur{border-color:var(--accent);color:var(--accent)}
+.dot.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+pre.code{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:14px 0;overflow-x:auto;
+  font-family:var(--f-mono);font-size:14px;line-height:1.7;tab-size:4}
+.ln{display:block;padding:0 16px 0 0;white-space:pre}
+.ln::before{content:attr(data-n);display:inline-block;width:3em;padding-right:1em;text-align:right;color:var(--code-gutter);user-select:none}
+.k{color:var(--syn-kw);font-weight:600}.t{color:var(--syn-type);font-weight:600}.s{color:var(--syn-str)}.nm{color:var(--syn-num)}.c{color:var(--syn-com);font-style:italic}.fn{color:var(--syn-fn)}
+.blank{font:600 14px var(--f-mono);width:7.5ch;padding:1px 6px;border:1.5px dashed var(--warm);border-radius:5px;background:var(--warm-soft);color:var(--ink);text-align:center}
+.blank.ok{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}
+.blank.no{border-style:solid;border-color:var(--bad);background:var(--bad-soft)}
+.console{margin-top:14px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.console-h{font:12px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:6px 12px;border-bottom:1px solid var(--line);background:var(--bg)}
+.console input{width:100%;border:0;background:var(--code-bg);color:var(--ink);font:15px var(--f-mono);padding:12px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.btn{font:700 15px var(--f-body);padding:9px 16px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.plain{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:default}
+.spacer{flex:1}
+.fb{margin-top:14px;padding:12px 14px;border-radius:8px;border-left:4px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--ok-soft)}
+.fb.no{border-color:var(--bad);background:var(--bad-soft)}
+.fb.hint{border-color:var(--warm);background:var(--warm-soft)}
+.fb strong{display:block;margin-bottom:2px}
+.fb code,.guide code,.consigna code{font-family:var(--f-mono);font-size:.9em}
+/* modo error */
+.lines-pick .ln{cursor:pointer;border-left:3px solid transparent}
+.lines-pick .ln:hover{background:var(--warm-soft)}
+.lines-pick .ln.no{background:var(--bad-soft);border-color:var(--bad)}
+.lines-pick .ln.ok{background:var(--ok-soft);border-color:var(--ok)}
+.lines-pick .ln:focus-visible{outline:2px solid var(--warm);outline-offset:-2px}
+/* modo armar */
+.parsons{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media (max-width:640px){.parsons{grid-template-columns:minmax(0,1fr)}}
+.zone-h{font:12px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px}
+.zone{min-height:120px;border:1.5px dashed var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--code-bg);overflow-x:auto}
+.tile{font:14px var(--f-mono);text-align:left;white-space:pre;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer}
+.tile:hover{border-color:var(--accent)}
+.zone.sol .tile{border-left:3px solid var(--accent)}
+.empty{font-size:14px;color:var(--muted);padding:8px}
+/* guía */
+.guide h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:0 0 10px}
+.guide p{margin:0 0 10px;font-size:15px}
+.anat{font:14px var(--f-mono);display:flex;flex-wrap:wrap;gap:4px 6px;margin:6px 0 14px;line-height:1.4}
+.anat span{display:inline-flex;flex-direction:column;align-items:center;gap:2px}
+.anat b{font-weight:600;padding:2px 4px;border-radius:4px}
+.anat small{font:11px var(--f-body);color:var(--muted)}
+.p1 b{background:var(--line)}.p2 b{background:var(--warm-soft);color:var(--warm)}.p3 b{background:var(--accent-soft);color:var(--accent)}.p4 b{background:var(--ok-soft);color:var(--ok)}
+.guide dl{margin:0;display:grid;gap:10px;font-size:15px}
+.guide dt{font-weight:700}
+.guide dd{margin:0;color:var(--muted)}
+.guide hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.reset{font:13px var(--f-body);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.shake{animation:shake .25s 2}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.bar i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="eyebrow">Programación 1 · Funciones (métodos con retorno)</span>
+      <h1>Laboratorio de Funciones <code>( )</code></h1>
+    </div>
+    <div class="total"><span id="totTxt">0 / 0 resueltos</span><div class="bar"><i id="totBar"></i></div></div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+
+  <div class="grid">
+    <main class="card" id="stage" aria-live="polite"></main>
+
+    <aside class="card guide">
+      <h3>Anatomía de una función</h3>
+      <div class="anat">
+        <span class="p1"><b>public static</b><small>modificadores</small></span>
+        <span class="p2"><b>int</b><small>tipo de retorno</small></span>
+        <span class="p3"><b>sumar</b><small>nombre</small></span>
+        <span class="p4"><b>(int a, int b)</b><small>parámetros</small></span>
+      </div>
+      <dl>
+        <div><dt><code>return</code></dt><dd>Devuelve un valor y termina el método. El valor debe coincidir con el tipo de retorno.</dd></div>
+        <div><dt>Usar el resultado</dt><dd>El valor que devuelve una función se puede guardar en una variable del mismo tipo, imprimir o usar dentro de una expresión: <code>int r = sumar(2, 3) * 10;</code></dd></div>
+        <div><dt>Parámetros y argumentos</dt><dd>Los parámetros se declaran con tipo en la firma; los argumentos son los valores que se pasan en la llamada: <code>sumar(3, 4)</code>. Deben coincidir en cantidad, orden y tipo.</dd></div>
+        <div><dt>Ámbito</dt><dd>Las variables declaradas dentro de un método solo existen ahí. Un <code>int</code> se pasa por valor: modificar el parámetro no cambia la variable original.</dd></div>
+      </dl>
+      <hr>
+      <p style="font-size:14px;color:var(--muted)">En los ejemplos, los métodos están dentro de <code>public class Main</code>; la clase se omite para abreviar.</p>
+      <button class="reset" id="resetBtn" type="button">Reiniciar progreso</button>
+      <span id="resetConfirm" hidden style="font-size:13px"> ¿Seguro? <button class="reset" id="resetYes" type="button">Sí, borrar</button> · <button class="reset" id="resetNo" type="button">Cancelar</button></span>
+    </aside>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  predecir: [
+    {t:"Duplicar un número", code:
+`public static int doble(int n) {
+    return n * 2;
+}
+
+public static void main(String[] args) {
+    System.out.println(doble(7));
+}`, a:["14"], hint:"El argumento 7 se copia en el parámetro n.", ex:"doble(7) devuelve 7 * 2 = 14, y println muestra ese valor."},
+    {t:"Llamada dentro de otra llamada", code:
+`public static int sumar(int a, int b) {
+    return a + b;
+}
+
+public static void main(String[] args) {
+    System.out.println(sumar(3, sumar(2, 4)));
+}`, a:["9"], hint:"Primero se resuelve la llamada de adentro.", ex:"sumar(2, 4) devuelve 6; luego sumar(3, 6) devuelve 9."},
+    {t:"Devolver un texto", code:
+`public static String saludo(String nombre) {
+    return "Hola, " + nombre;
+}
+
+public static void main(String[] args) {
+    System.out.println(saludo("Ana"));
+}`, a:["Hola, Ana"], hint:"La función arma el texto y lo devuelve; el main lo imprime.", ex:"saludo(\"Ana\") devuelve \"Hola, Ana\" y println lo muestra."},
+    {t:"Método booleano", code:
+`public static boolean esPar(int n) {
+    return n % 2 == 0;
+}
+
+public static void main(String[] args) {
+    System.out.println(esPar(15));
+}`, a:["false"], hint:"¿Cuánto vale 15 % 2?", ex:"15 % 2 es 1; como 1 == 0 es falso, se imprime false."},
+    {t:"Promedio con decimales", code:
+`public static double promedio(int a, int b) {
+    return (a + b) / 2.0;
+}
+
+public static void main(String[] args) {
+    System.out.println(promedio(7, 8));
+}`, a:["7.5"], hint:"Dividir entre 2.0 (y no entre 2) produce un double.", ex:"(7 + 8) / 2.0 = 15 / 2.0 = 7.5. Con / 2 el resultado sería 7, porque la división entera descarta los decimales."},
+    {t:"El mayor de dos", code:
+`public static int max(int a, int b) {
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
+
+public static void main(String[] args) {
+    System.out.println(max(-3, -8));
+}`, a:["-3"], hint:"Con negativos, el mayor es el más cercano a cero.", ex:"-3 > -8 es verdadero, así que el método devuelve a, que vale -3."},
+    {t:"Usar el resultado en una expresión", code:
+`public static int cuadrado(int x) {
+    return x * x;
+}
+
+public static void main(String[] args) {
+    int r = cuadrado(3) + cuadrado(4);
+    System.out.println(r);
+}`, a:["25"], hint:"Cada llamada se reemplaza por el valor que devuelve.", ex:"cuadrado(3) es 9 y cuadrado(4) es 16; 9 + 16 = 25."},
+    {t:"Paso por valor", code:
+`public static int incrementar(int x) {
+    x = x + 1;
+    return x;
+}
+
+public static void main(String[] args) {
+    int n = 5;
+    int m = incrementar(n);
+    System.out.println(n + " " + m);
+}`, a:["5 6"], hint:"El parámetro x recibe una copia del valor de n.", ex:"incrementar modifica su copia local x y devuelve 6, que se guarda en m. La variable n del main no cambia: sigue valiendo 5."},
+    {t:"Un bucle dentro del método", code:
+`public static String repetir(String s, int veces) {
+    String r = "";
+    for (int i = 0; i < veces; i++) {
+        r = r + s;
+    }
+    return r;
+}
+
+public static void main(String[] args) {
+    System.out.println(repetir("ja", 3));
+}`, a:["jajaja"], hint:"El for se ejecuta con i = 0, 1 y 2.", ex:"En cada vuelta se agrega \"ja\" a r. Tras 3 vueltas, r vale jajaja."},
+    {t:"Factorial", code:
+`public static int factorial(int n) {
+    int f = 1;
+    for (int i = 2; i <= n; i++) {
+        f = f * i;
+    }
+    return f;
+}
+
+public static void main(String[] args) {
+    System.out.println(factorial(5));
+}`, a:["120"], hint:"Calcular 1 · 2 · 3 · 4 · 5.", ex:"f toma los valores 2, 6, 24 y 120. Se imprime 120."}
+  ],
+  completar: [
+    {t:"Tipo de retorno", q:"El método devuelve el triple de un número entero.", code:
+`public static ⟦0⟧ triple(int n) {
+    return n * 3;
+}`, b:[["int"]], hint:"¿Qué tipo de dato resulta de multiplicar un int por 3?", ex:"n * 3 es un int, por eso el tipo de retorno es int."},
+    {t:"Devolver el resultado", q:"El método calcula el área de un círculo.", code:
+`public static double areaCirculo(double radio) {
+    ⟦0⟧ Math.PI * radio * radio;
+}`, b:[["return"]], hint:"Falta la palabra que entrega el valor a quien llamó al método.", ex:"return devuelve el valor calculado y termina el método."},
+    {t:"Tipo del parámetro", q:"La función calcula un precio con IVA (22 %). Se llama así: precioConIva(150.0)", code:
+`public static double precioConIva(⟦0⟧ precio) {
+    return precio * 1.22;
+}`, b:[["double"]], hint:"El argumento 150.0 tiene parte decimal.", ex:"Un precio puede tener decimales, por eso el parámetro es double."},
+    {t:"Condición de retorno", q:"El método indica si una persona es mayor de edad (18 años o más).", code:
+`public static boolean esMayorDeEdad(int edad) {
+    return edad ⟦0⟧ 18;
+}`, b:[[">="]], hint:"Con 18 años exactos también debe devolver true.", ex:"edad >= 18 es una expresión booleana: true cuando edad es 18 o más."},
+    {t:"Llamar al método", q:"Ya existe el método public static int sumar(int a, int b). Completar la llamada.", code:
+`int resultado = ⟦0⟧(4, 9);
+System.out.println(resultado);   // 13`, b:[["sumar"]], hint:"Para llamar a un método se escribe su nombre seguido de los argumentos.", ex:"sumar(4, 9) devuelve 13 y ese valor se guarda en resultado."},
+    {t:"Devolver texto", q:"El método arma un saludo a partir de un nombre.", code:
+`public static ⟦0⟧ saludo(String n) {
+    return "Hola " + n;
+}`, b:[["String"]], hint:"La concatenación de textos produce un texto. Ojo con la mayúscula.", ex:"\"Hola \" + n es un String. En Java, String se escribe con S mayúscula."},
+    {t:"Firma completa", q:"El método indica si un número es positivo.", code:
+`public static ⟦0⟧ esPositivo(int ⟦1⟧) {
+    return x > 0;
+}`, b:[["boolean"],["x"]], hint:"El cuerpo usa una variable que debe declararse como parámetro.", ex:"x > 0 es verdadero o falso, por eso el tipo es boolean. El parámetro debe llamarse x porque así se usa en el return."},
+    {t:"Guardar el resultado", q:"Ya existe la función public static double promedio(int a, int b). Completar el tipo de la variable.", code:
+`⟦0⟧ p = promedio(7, 8);
+System.out.println(p);   // 7.5`, b:[["double"]], hint:"La variable debe ser del mismo tipo que devuelve la función.", ex:"promedio devuelve un double, así que la variable que guarda el resultado también es double."}
+  ],
+  error: [
+    {t:"Falta el tipo de retorno", q:"El código no compila. Hacer clic en la línea que provoca el error.", lines:[
+"public static cuadrado(int x) {",
+"    return x * x;",
+"}"], bad:0, ex:"Toda función debe declarar qué tipo devuelve entre static y el nombre: public static int cuadrado(int x)."},
+    {t:"Pérdida de precisión", q:"El código no compila. Hacer clic en la línea que provoca el error.", lines:[
+"public static int mitad(int n) {",
+"    return n / 2.0;",
+"}"], bad:1, ex:"n / 2.0 da un double, pero el método promete devolver un int. Se puede usar n / 2 o cambiar el tipo de retorno a double."},
+    {t:"Variable de otro tipo", q:"El código no compila. Hacer clic en la línea que provoca el error.", lines:[
+"public static boolean esPar(int n) {",
+"    return n % 2 == 0;",
+"}",
+"",
+"public static void main(String[] args) {",
+"    int r = esPar(4);",
+"    System.out.println(r);",
+"}"], bad:5, ex:"esPar devuelve un boolean y se intenta guardar en un int. La variable debe ser boolean r = esPar(4);"},
+    {t:"Cantidad de argumentos", q:"El código no compila. Hacer clic en la línea que provoca el error.", lines:[
+"public static int sumar(int a, int b) {",
+"    return a + b;",
+"}",
+"",
+"public static void main(String[] args) {",
+"    int s = sumar(5);",
+"    System.out.println(s);",
+"}"], bad:5, ex:"sumar espera dos argumentos y la llamada pasa solo uno. Debería ser, por ejemplo, sumar(5, 3)."},
+    {t:"Tipos incompatibles", q:"El código no compila. Hacer clic en la línea que provoca el error.", lines:[
+"public static String nombreCurso() {",
+"    return 42;",
+"}"], bad:1, ex:"El método debe devolver un String y 42 es un int. Se corrige con return \"42\"; o con el texto que corresponda."},
+    {t:"Parámetros sin tipo", q:"El código no compila. Hacer clic en la línea que provoca el error.", lines:[
+"public static int resta(a, b) {",
+"    return a - b;",
+"}"], bad:0, ex:"Cada parámetro necesita su tipo: (int a, int b)."},
+    {t:"Falta un return", q:"El compilador marca \"missing return statement\". Hacer clic en la línea donde lo señala.", lines:[
+"public static boolean esCero(int n) {",
+"    if (n == 0) {",
+"        return true;",
+"    }",
+"}"], bad:4, ex:"Si n no es 0, el método llega al final sin devolver nada. Hay que agregar return false; antes de la última llave."}
+  ],
+  armar: [
+    {t:"Suma de 1 a n", q:"Ordenar las líneas para que el método devuelva 1 + 2 + … + n. Sobra una línea.", sol:[[
+"public static int sumaHasta(int n) {",
+"int suma = 0;",
+"for (int i = 1; i <= n; i++) {",
+"suma = suma + i;",
+"}",
+"return suma;",
+"}"]], extra:["return i;"], hint:"El acumulador se inicializa antes del for y se devuelve después de cerrarlo.", ex:"suma arranca en 0, el for acumula cada i y al final se devuelve suma."},
+    {t:"Mayor de tres", q:"Ordenar las líneas para que el método devuelva el mayor de los tres números.", sol:[[
+"public static int mayor(int a, int b, int c) {",
+"int m = a;",
+"if (b > m) m = b;",
+"if (c > m) m = c;",
+"return m;",
+"}"],[
+"public static int mayor(int a, int b, int c) {",
+"int m = a;",
+"if (c > m) m = c;",
+"if (b > m) m = b;",
+"return m;",
+"}"]], extra:[], hint:"Primero se supone que el mayor es a y después se compara con los demás.", ex:"m guarda el mayor visto hasta el momento. Los dos if pueden ir en cualquier orden."},
+    {t:"Potencia", q:"Ordenar las líneas para que la función devuelva base elevado a exp. Sobra una línea.", sol:[[
+"public static int potencia(int base, int exp) {",
+"int r = 1;",
+"for (int i = 1; i <= exp; i++) {",
+"r = r * base;",
+"}",
+"return r;",
+"}"]], extra:["System.out.println(r);"], hint:"Una función devuelve el resultado; no lo imprime.", ex:"r arranca en 1 y se multiplica por base exp veces. Al final se devuelve r; quien llama a la función decide si lo imprime."},
+    {t:"Contar pares", q:"Ordenar las líneas para contar cuántos números pares hay entre 1 y n. Sobra una línea.", sol:[[
+"public static int contarPares(int n) {",
+"int cont = 0;",
+"for (int i = 1; i <= n; i++) {",
+"if (i % 2 == 0) {",
+"cont++;",
+"}",
+"}",
+"return cont;",
+"}"]], extra:["int cont = 1;"], hint:"El contador debe empezar en cero.", ex:"cont arranca en 0 y suma 1 cada vez que i es par. Al terminar el for se devuelve cont."}
+  ]
+};
+const MODES = [
+  {id:"predecir", name:"Predecir la salida", desc:"Leer el programa y escribir exactamente lo que aparece en la consola."},
+  {id:"completar", name:"Completar el código", desc:"Escribir lo que falta en cada espacio marcado."},
+  {id:"error", name:"Encontrar el error", desc:""},
+  {id:"armar", name:"Armar el método", desc:""}
+];
+
+/* ---------- estado ---------- */
+const KEY = "lab-funciones-v2";
+let solved = {predecir:{},completar:{},error:{},armar:{}};
+try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) for(const k in solved) solved[k] = s[k] || {}; }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(solved)); }catch(e){} }
+let mode = "predecir", idx = {predecir:0,completar:0,error:0,armar:0};
+let parsonsState = null;
+
+/* ---------- resaltado ---------- */
+const KW = new Set("public static void return if else for while do new true false class private final break continue".split(" "));
+const TY = new Set("int double boolean String char long float".split(" "));
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function hl(src){
+  const re = /(\/\/.*$)|("(?:[^"\\]|\\.)*")|\b([A-Za-z_]\w*)\b(?=\s*\()|\b([A-Za-z_]\w*)\b|\b(\d+(?:\.\d+)?)\b/gm;
+  let out = "", last = 0, m;
+  while((m = re.exec(src))){
+    out += esc(src.slice(last, m.index));
+    if(m[1]) out += `<span class="c">${esc(m[1])}</span>`;
+    else if(m[2]) out += `<span class="s">${esc(m[2])}</span>`;
+    else if(m[3]) out += KW.has(m[3]) ? `<span class="k">${m[3]}</span>` : `<span class="fn">${m[3]}</span>`;
+    else if(m[4]) out += KW.has(m[4]) ? `<span class="k">${m[4]}</span>` : TY.has(m[4]) ? `<span class="t">${m[4]}</span>` : m[4];
+    else if(m[5]) out += `<span class="nm">${m[5]}</span>`;
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+const codeLines = (src, attrs="") => src.split("\n").map((l,i)=>`<span class="ln" data-n="${i+1}" ${attrs}>${hl(l)||" "}</span>`).join("");
+
+/* ---------- interfaz ---------- */
+const $ = id => document.getElementById(id);
+function renderTabs(){
+  $("tabs").innerHTML = MODES.map(m=>{
+    const n = Object.keys(solved[m.id]).length, tot = DATA[m.id].length;
+    return `<button class="tab" role="tab" id="tab-${m.id}" aria-selected="${m.id===mode}" data-m="${m.id}">${m.name}<span class="n">${n}/${tot}</span></button>`;
+  }).join("");
+  let n=0,t=0; for(const m of MODES){ n+=Object.keys(solved[m.id]).length; t+=DATA[m.id].length; }
+  $("totTxt").textContent = `${n} / ${t} resueltos`;
+  $("totBar").style.width = (t? n/t*100 : 0) + "%";
+}
+$("tabs").addEventListener("click", e=>{ const b=e.target.closest(".tab"); if(!b) return; mode=b.dataset.m; parsonsState=null; render(); });
+
+function head(ex){
+  const list = DATA[mode], i = idx[mode];
+  const dots = list.map((_,j)=>`<button class="dot ${j===i?"cur":""} ${solved[mode][j]?"done":""}" data-j="${j}" aria-label="Ejercicio ${j+1}">${j+1}</button>`).join("");
+  return `<div class="ex-head"><span class="ex-num">${MODES.find(m=>m.id===mode).name} · ${i+1} de ${list.length}</span><div class="dots">${dots}</div></div>
+  <h2>${esc(ex.t)}</h2>`;
+}
+function nav(){
+  const i = idx[mode], last = DATA[mode].length-1;
+  return `<span class="spacer"></span><button class="btn plain" data-act="prev" ${i===0?"disabled":""}>← Anterior</button><button class="btn ghost" data-act="next" ${i===last?"disabled":""}>Siguiente →</button>`;
+}
+function fb(kind, title, body){ $("fb").className = "fb " + kind; $("fb").hidden = false; $("fb").innerHTML = `<strong>${title}</strong>${body}`; }
+function markSolved(){ solved[mode][idx[mode]] = true; save(); renderTabs(); document.querySelectorAll(".dot")[idx[mode]].classList.add("done"); }
+
+function render(){
+  renderTabs();
+  const ex = DATA[mode][idx[mode]], st = $("stage");
+  const desc = MODES.find(m=>m.id===mode).desc;
+  if(mode==="predecir"){
+    st.innerHTML = head(ex) + `<p class="consigna">${desc}</p>
+      <pre class="code">${codeLines(ex.code)}</pre>
+      <div class="console"><div class="console-h">Consola · salida esperada</div>
+      <input id="ans" autocomplete="off" spellcheck="false" placeholder="Escribir la salida…" aria-label="Salida del programa"></div>
+      <div class="actions"><button class="btn" data-act="check">Comprobar</button><button class="btn plain" data-act="hint">Pista</button>${nav()}</div>
+      <div id="fb" hidden></div>`;
+  } else if(mode==="completar"){
+    const parts = ex.code.split(/⟦(\d)⟧/);
+    let html = "";
+    for(let p=0;p<parts.length;p++){
+      if(p%2===0) html += hl(parts[p]);
+      else html += `<input class="blank" data-b="${parts[p]}" autocomplete="off" spellcheck="false" aria-label="Espacio ${+parts[p]+1}">`;
+    }
+    const lines = html.split("\n").map((l,i)=>`<span class="ln" data-n="${i+1}">${l||" "}</span>`).join("");
+    st.innerHTML = head(ex) + `<p class="consigna">${esc(ex.q)} ${desc}</p>
+      <pre class="code">${lines}</pre>
+      <div class="actions"><button class="btn" data-act="check">Comprobar</button><button class="btn plain" data-act="hint">Pista</button>${nav()}</div>
+      <div id="fb" hidden></div>`;
+  } else if(mode==="error"){
+    st.innerHTML = head(ex) + `<p class="consigna">${esc(ex.q)}</p>
+      <pre class="code lines-pick">${ex.lines.map((l,i)=>`<span class="ln" role="button" tabindex="0" data-n="${i+1}" data-i="${i}">${hl(l)||" "}</span>`).join("")}</pre>
+      <div class="actions"><button class="btn plain" data-act="reveal">Ver la respuesta</button>${nav()}</div>
+      <div id="fb" hidden></div>`;
+  } else {
+    if(!parsonsState){
+      const tiles = ex.sol[0].concat(ex.extra).map((txt,k)=>({k,txt}));
+      for(let a=tiles.length-1;a>0;a--){ const b=Math.floor(Math.random()*(a+1)); [tiles[a],tiles[b]]=[tiles[b],tiles[a]]; }
+      parsonsState = {pool:tiles, ans:[]};
+    }
+    st.innerHTML = head(ex) + `<p class="consigna">${esc(ex.q)} Hacer clic en una línea para moverla; la sangría se agrega sola.</p>
+      <div class="parsons">
+        <div><div class="zone-h">Líneas disponibles</div><div class="zone" id="pool"></div></div>
+        <div><div class="zone-h">Método</div><div class="zone sol" id="sol"></div></div>
+      </div>
+      <div class="actions"><button class="btn" data-act="check">Comprobar</button><button class="btn plain" data-act="hint">Pista</button><button class="btn plain" data-act="shuffle">Empezar de nuevo</button>${nav()}</div>
+      <div id="fb" hidden></div>`;
+    drawParsons();
+  }
+  if(solved[mode][idx[mode]] && mode!=="armar") {/* se puede volver a intentar */}
+}
+
+function indentOf(lines){
+  let lvl = 0;
+  return lines.map(t=>{ if(t.startsWith("}")) lvl=Math.max(0,lvl-1); const s="    ".repeat(lvl)+t; if(t.endsWith("{")) lvl++; return s; });
+}
+function drawParsons(){
+  const P = parsonsState;
+  $("pool").innerHTML = P.pool.length ? P.pool.map((x,j)=>`<button class="tile" data-pool="${j}">${hl(x.txt)}</button>`).join("") : `<div class="empty">No quedan líneas.</div>`;
+  const ind = indentOf(P.ans.map(x=>x.txt));
+  $("sol").innerHTML = P.ans.length ? ind.map((t,j)=>`<button class="tile" data-ans="${j}">${hl(t)}</button>`).join("") : `<div class="empty">Elegir la primera línea del método.</div>`;
+}
+
+const norm = s => s.trim().replace(/\s+/g," ").replace(/^"(.*)"$/,"$1");
+$("stage").addEventListener("click", e=>{
+  const dot = e.target.closest(".dot");
+  if(dot){ idx[mode] = +dot.dataset.j; parsonsState=null; render(); return; }
+  const tp = e.target.closest("[data-pool]"), ta = e.target.closest("[data-ans]");
+  if(tp){ parsonsState.ans.push(parsonsState.pool.splice(+tp.dataset.pool,1)[0]); drawParsons(); return; }
+  if(ta){ parsonsState.pool.push(parsonsState.ans.splice(+ta.dataset.ans,1)[0]); drawParsons(); return; }
+  const line = e.target.closest(".lines-pick .ln");
+  if(line){ pickLine(line); return; }
+  const b = e.target.closest("[data-act]"); if(!b) return;
+  const ex = DATA[mode][idx[mode]], act = b.dataset.act;
+  if(act==="prev"||act==="next"){ idx[mode] += act==="next"?1:-1; parsonsState=null; render(); return; }
+  if(act==="hint"){ fb("hint","Pista", esc(ex.hint)); return; }
+  if(act==="shuffle"){ parsonsState=null; render(); return; }
+  if(act==="reveal"){ const ln=document.querySelectorAll(".lines-pick .ln")[ex.bad]; ln.classList.add("ok"); fb("hint",`El error está en la línea ${ex.bad+1}`, esc(ex.ex)); return; }
+  if(act==="check") check(ex);
+});
+$("stage").addEventListener("keydown", e=>{
+  if(e.key==="Enter" && e.target.id==="ans"){ check(DATA[mode][idx[mode]]); }
+  else if(e.key==="Enter" && e.target.classList.contains("blank")){ check(DATA[mode][idx[mode]]); }
+  else if((e.key==="Enter"||e.key===" ") && e.target.matches(".lines-pick .ln")){ e.preventDefault(); pickLine(e.target); }
+});
+
+function pickLine(el){
+  const ex = DATA[mode][idx[mode]], i = +el.dataset.i;
+  if(i===ex.bad){ el.classList.add("ok"); fb("ok","¡Correcto! El error está en la línea "+(i+1)+".", esc(ex.ex)); markSolved(); }
+  else { el.classList.add("no"); fb("no","Esa línea no es el problema.","La línea "+(i+1)+" es válida por sí sola. Probar con otra."); }
+}
+
+function check(ex){
+  if(mode==="predecir"){
+    const inp=$("ans"), v=norm(inp.value);
+    if(!v){ fb("hint","Falta la respuesta","Escribir lo que imprime el programa."); return; }
+    if(ex.a.some(a=>norm(a)===v)){ fb("ok","¡Correcto!", esc(ex.ex)); markSolved(); }
+    else if(ex.a.some(a=>norm(a).toLowerCase()===v.toLowerCase())){ fb("no","Casi.","La consola distingue mayúsculas y minúsculas. Revisar cada letra."); }
+    else { fb("no","Todavía no.","Seguir el programa línea por línea, empezando por el main."); inp.classList.remove("shake"); void inp.offsetWidth; inp.classList.add("shake"); }
+  } else if(mode==="completar"){
+    let all=true, empty=false;
+    document.querySelectorAll(".blank").forEach(inp=>{
+      const v=inp.value.trim(); if(!v) empty=true;
+      const ok = ex.b[+inp.dataset.b].includes(v);
+      inp.classList.toggle("ok",ok); inp.classList.toggle("no",!ok&&!!v); if(!ok) all=false;
+    });
+    if(all){ fb("ok","¡Correcto!", esc(ex.ex)); markSolved(); }
+    else fb(empty?"hint":"no", empty?"Faltan espacios por completar.":"Hay espacios incorrectos.", "Los espacios en rojo necesitan revisión. Java distingue mayúsculas de minúsculas.");
+  } else if(mode==="armar"){
+    const P=parsonsState, got=P.ans.map(x=>x.txt);
+    if(P.ans.length===0){ fb("hint","Todavía no hay líneas.","Hacer clic en las líneas disponibles para armar el método."); return; }
+    if(ex.sol.some(s=>s.length===got.length && s.every((t,j)=>t===got[j]))){ fb("ok","¡Correcto!", esc(ex.ex)); markSolved(); }
+    else {
+      const usedExtra = got.some(t=>ex.extra.includes(t));
+      fb("no","Todavía no.", usedExtra ? "Se usó una línea que sobra. Revisar cuál no corresponde a este método." : got.length < ex.sol[0].length ? "Faltan líneas o el orden no es el correcto." : "El orden de las líneas no es el correcto.");
+    }
+  }
+}
+
+/* reinicio */
+$("resetBtn").onclick=()=>{ $("resetConfirm").hidden=false; $("resetBtn").hidden=true; };
+$("resetNo").onclick=()=>{ $("resetConfirm").hidden=true; $("resetBtn").hidden=false; };
+$("resetYes").onclick=()=>{ solved={predecir:{},completar:{},error:{},armar:{}}; save(); $("resetConfirm").hidden=true; $("resetBtn").hidden=false; parsonsState=null; render(); };
+
+render();
+</script>
+
+</body></html>
